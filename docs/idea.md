@@ -33,8 +33,6 @@ also be dynamic, meaning that they can depend on another variable (thinking of
 react props here...). To be honest, this should probably be inlined CSS.
 Ideally, then, we have a way of altering `:hover` and such in the inlined CSS.
 Media queries probably shouldn't be customized so we're safe there.
-Consider http://www.hunlock.com/blogs/Totally_Pwn_CSS_with_Javascript or
-http://www.w3.org/wiki/Dynamic_style_-_manipulating_CSS_with_JavaScript .
 4. emit a set of all CSS needed (at least all pre-customization CSS).
 
 Perhaps customized CSS can be dynamically generated/added, and other CSS can be
@@ -49,3 +47,10 @@ CSS to the DOM.
 
 No clue yet.
 
+## Implementation Details:
+Helpful for dynamic styles:
+- http://davidwalsh.name/add-rules-stylesheets (tutorial)
+- http://www.hunlock.com/blogs/Totally_Pwn_CSS_with_Javascript (tutorial)
+- http://www.quirksmode.org/dom/w3c_css.html (browser compatibility)
+- http://www.w3.org/wiki/Dynamic_style_-_manipulating_CSS_with_JavaScript
+- https://developer.mozilla.org/en-US/docs/Web/API/Document/styleSheets
