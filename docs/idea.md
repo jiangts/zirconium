@@ -54,3 +54,11 @@ Helpful for dynamic styles:
 - http://www.quirksmode.org/dom/w3c_css.html (browser compatibility)
 - http://www.w3.org/wiki/Dynamic_style_-_manipulating_CSS_with_JavaScript
 - https://developer.mozilla.org/en-US/docs/Web/API/Document/styleSheets
+
+Idea: don't pre-gensym. Dynamically do it! And thus dynamically change element
+class and CSS output in DOM.
+
+THERE IS ALSO THE `(namespace ::x)` IDEA! Two concerns: 1) does the name get
+minified? 2) Does the code even work when it's minified?
+
+http://stackoverflow.com/questions/16656481/how-can-i-get-the-clojurescript-namespace-i-am-in-from-within-a-clojurescript-pr

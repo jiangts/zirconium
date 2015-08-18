@@ -1,74 +1,45 @@
-(ns ^:figwheel-always zirconium.css
+(ns zirconium.css
   (:require 
-    ;[garden.core :as garden]
-    [clojure.string :as string]))
+    [garden.core :as garden]
+    [garden.color :as color]
+    [garden.units :as units]
+    [clojure.string :as string]
+    [goog.cssom :as cssom]
+    [goog.dom :as dom]))
 
 (enable-console-print!)
 
-(js*
-"
-function getCSSRule(ruleName, deleteFlag) {               // Return requested style obejct
-   ruleName=ruleName.toLowerCase();                       // Convert test string to lower case.
-   if (document.styleSheets) {                            // If browser can play with stylesheets
-      for (var i=0; i<document.styleSheets.length; i++) { // For each stylesheet
-         var styleSheet=document.styleSheets[i];          // Get the current Stylesheet
-         var ii=0;                                        // Initialize subCounter.
-         var cssRule=false;                               // Initialize cssRule. 
-         do {                                             // For each rule in stylesheet
-            if (styleSheet.cssRules) {                    // Browser uses cssRules?
-               cssRule = styleSheet.cssRules[ii];         // Yes --Mozilla Style
-            } else {                                      // Browser usses rules?
-               cssRule = styleSheet.rules[ii];            // Yes IE style. 
-            }                                             // End IE check.
-            if (cssRule)  {                               // If we found a rule...
-               if (cssRule.selectorText.toLowerCase()==ruleName) { //  match ruleName?
-                  if (deleteFlag=='delete') {             // Yes.  Are we deleteing?
-                     if (styleSheet.cssRules) {           // Yes, deleting...
-                        styleSheet.deleteRule(ii);        // Delete rule, Moz Style
-                     } else {                             // Still deleting.
-                        styleSheet.removeRule(ii);        // Delete rule IE style.
-                     }                                    // End IE check.
-                     return true;                         // return true, class deleted.
-                  } else {                                // found and not deleting.
-                     return cssRule;                      // return the style object.
-                  }                                       // End delete Check
-               }                                          // End found rule name
-            }                                             // end found cssRule
-            ii++;                                         // Increment sub-counter
-         } while (cssRule)                                // end While loop
-      }                                                   // end For loop
-   }                                                      // end styleSheet ability check
-   return false;                                          // we found NOTHING!
-}                                                         // end getCSSRule 
+;; ==============================
+;; http://google.github.io/closure-library/api/namespace_goog_cssom.html
 
-function killCSSRule(ruleName) {                          // Delete a CSS rule   
-   return getCSSRule(ruleName,'delete');                  // just call getCSSRule w/delete flag.
-}                                                         // end killCSSRule
+;; Javascript driven media queries:
+;; http://www.sitepoint.com/javascript-media-queries/
 
-function addCSSRule(ruleName) {                           // Create a new css rule
-   if (document.styleSheets) {                            // Can browser do styleSheets?
-      if (!getCSSRule(ruleName)) {                        // if rule doesn't exist...
-         if (document.styleSheets[0].addRule) {           // Browser is IE?
-            document.styleSheets[0].addRule(ruleName, null,0);      // Yes, add IE style
-         } else {                                         // Browser is IE?
-            document.styleSheets[0].insertRule(ruleName+' { }', 0); // Yes, add Moz style.
-         }                                                // End browser check
-      }                                                   // End already exist check.
-   }                                                      // End browser ability check.
-   return getCSSRule(ruleName);                           // return rule we just created.
-}
-")
+;; inspiration: JSS, smart-css, many others
 
-(defn write-rule [rule-name rules]
-  (map 
-    #(set! (.. (js/addCSSRule rule-name) -style ) (str (val %)))
-    rules))
+;; idea: make the set-class function create inline and text data. 
+;; or just write a better inlining function (not macro)
 
-(defn merge-rule [rule-name rules]
-  (js/addCSSRule rule-name))
+;; design: have single zirconium stylesheet
+(defn ensure-stylesheet! [] 
+  (when (zero? (.-length (cssom/getAllCssStyleSheets)))
+    (cssom/addCssText ""))
+  (first (cssom/getAllCssStyleSheets)))
 
-;(println (set! (.. (write-rule "h2") -style -fontFamily) "fantasy"))
-(println (write-rule "h2" {:fontFamily 'fantasy}))
+(def sheet (ensure-stylesheet!))
 
-;; make set class function create inline and text data
-;;http://www.sitepoint.com/javascript-media-queries/
+; takes 2 arguments: css string and index. index --> use map-indexed
+(def add-rule (partial cssom/addCssRule sheet))
+
+; takes 1 argument: index
+(def remove-rule (partial cssom/removeCssRule sheet))
+
+(defn replace-rule [rule index]
+  (remove-rule index)
+  (add-rule rule index))
+
+
+;TODO need to track index
+;(add-rule (garden/css [:h2 {:color 'blue}]) 0)
+(replace-rule (garden/css [:h2 {:color 'magenta}]) 0)
+(println (cssom/getAllCssStyleRules sheet))
