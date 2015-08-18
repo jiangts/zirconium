@@ -3,7 +3,8 @@
     [garden.core :as garden]
     [garden.units :as u]
     [clojure.string :as string]
-    [clojure.walk :as w]) 
+    [clojure.walk :as w]
+    [zirconium.css])
   (:require-macros 
     [zirconium.core :as macros]))
 
